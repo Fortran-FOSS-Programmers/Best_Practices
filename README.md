@@ -1,8 +1,8 @@
-### Fortran FOSS Programmers: our best practices
+# best practices and styles guidelines of Fortran FOSS Programmers
 
 > an opionated list of *best practices* to be a good Fortran FOSS Programmers
 
-#### standard compliance counts... but practicality counts more
+## standard compliance counts... but practicality counts more
 
 Standards conformance should be considered of paramount relevance:
 
