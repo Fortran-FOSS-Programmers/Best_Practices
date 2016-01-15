@@ -35,8 +35,8 @@ The naming convention is a very personal choice. The following suggestions shoul
 > + take care of *entities disambiguation*; often you would have the same name for different entities, e.g. a module name and the name of the *main public derived type* it defines:
 ```fortran
 module ambiguous
-    type, public :: ambiguous
-    endtype ambiguous
+  type, public :: ambiguous
+  endtype ambiguous
 endmodule ambiguous
 ```
 This is not allowed! Consider to adopt a non ambiguous convention to distinguish different kind of entities.
