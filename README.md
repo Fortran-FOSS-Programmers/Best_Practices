@@ -45,6 +45,7 @@ The naming convention is a very personal choice. The following suggestions shoul
 > + prefer lowercase: Fortran is a case-insensitive language, thus you cannot rely on lower-UPPER case distinction for syntax checks; however, `CamelCase` style could help code readability, thus select your way:
 >     + if you go with strict lowercase style, consider to exploit *underscores* (`lower_case`) to improve your names clearness (especially for multi-word names);
 > + names should be *descriptive*, names should have *meaning*: do not strive to much in *local shortening*, adopt names that are *auto-explicative*; in particular, singular character names should be admissible for **only** indexes/counters;
+>     + avoid *magic numbers*, use *parameters*, i.e. named constants;
 > + take care of *entities disambiguation*; often you would have the same name for different entities, e.g. a module name and the name of the *main public derived type* it defines.
 
 #### General considerations
