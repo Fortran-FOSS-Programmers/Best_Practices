@@ -20,6 +20,8 @@ resources to help get you up to speed on commonly used licenses, and how to use 
  - [GNU list of free licenses](http://www.gnu.org/licenses/license-list.html)
  - [GNU license selection advice](http://www.gnu.org/licenses/license-recommendations.html)
  
+ > I'm trying to get rid of the formatting glitch above. I may have to clone and edit locally... please fix if you know how
+ 
  ## Licensing code snippets and project documents and documentation
  The source code of a software project should be licensed using a license appropriate to the specific needs of
  the project and project authors. Often, however, these licenses might not be appropriate for other documents
