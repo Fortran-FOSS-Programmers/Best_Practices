@@ -99,7 +99,7 @@ end module global_scope
 + avoid naming variables with single-character `l`, i.e. lower case `L`: often the lower case name `l` can be confused with the number constant `1`, especially when some mono-spaced/sans-serif fonts are used, e.g. in the statement `do l=1, N` do you easily distinguish the loop counter from the loop starting value? Again, editors syntax highlighting helps to distinguish variables from numeric constants; note that similar considerations could be made also for the single-character name `O`, i.e. upper case `o` that could be confused with the number constant `0`;
 
 ##### <a name="names-meaning"></a> Names meaning
-As a *rule of thumb* consider that
+As a *rule of thumb* (yes, we aforementioned that these are not rule of thumb...) consider that
 
 > all names must have a meaning.
 
@@ -145,14 +145,14 @@ It could happen that you would like to attribute the same name to different *ent
 
 ```fortran
 module shape_sphere
-  type, public :: shape_sphere
+  type, public :: shape_sphere ! not allowed
   endtype shape_sphere
 endmodule shape_sphere
 ```
 This is not allowed because two different *entities*, namely the module and the derived type, have the same name in the same scope. In such a situation, you should consider adopting a convention to disambiguate names. Note that a similar ambiguity happens when you would like to name a variable with the same of its type, e.g.:
 
 ```fortran
-type(shape_sphere) :: shape_sphere
+type(shape_sphere) :: shape_sphere ! not allowed
 ```
 
 Among the others, the following are widely-used disambiguation techniques:
