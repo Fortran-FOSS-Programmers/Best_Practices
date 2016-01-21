@@ -1,10 +1,15 @@
-# best practices and styles guidelines of Fortran FOSS Programmers
+# <a name="top"></a> best practices and styles guidelines of Fortran FOSS Programmers
 
-> an opionated list of *best practices* to be a good Fortran FOSS Programmer
+> an opinionated list of *best practices* to be a good Fortran FOSS Programmer
 
 + [standard compliance](#standardization) counts... but *practicality* counts more;
 + [beautiful](#beautiful) is better than *ugly*:
     + [naming convention](#naming) counts;
+    + [explicit](#explicit) is better than *impl.*;
+
+[References](#references)
+
+[Copyrights](#copyrights)
 
 # Motivations
 
@@ -36,9 +41,10 @@ see [[1](#modern-fortran-style)]. This means that results count, but also *reada
 
 The followings are some guidelines to try to develop *beautiful* (in the sense of readable/clear) codes:
 
-1. [naming convention](#naming) counts;
++ [naming convention](#naming) counts;
++ [explicit](#explicit) is better than *impl.*;
 
-### <a name="naming"></a> Naming convention
+### <a name="naming"></a> Naming convention counts
 The naming convention is a very personal choice. The following suggestions should be considered as they are... just *suggestions*.
 
 > + adopt your *opinionated* naming convention and use it **consistently**;
@@ -238,8 +244,72 @@ function useful_thing
 end function useful_thing
 ```
 
-### References
+Go to [TOP](#top) or [Up](#beautiful)
+
+### <a name="explicit"></a> Explicit is better than *impl.*
+Implicit typing can *speed* the development of codes, but it is difficult to debug/read/understand **implicit-defined** codes, thus
+
+> always exploit `implicit none` statement:
++ into *hosts*: place `implicit none` at the start of each `program`, `module` and `submodule`;
++ into procedures that are not contained into a *host*: place `implicit none` at the start of each `function` and `subroutine` defined outside a host;
+
+A sane explicit style is
+
+```fortran
+module sane_interface
+  implicit none
+  type sane_type
+    contains
+      procedure, nopass :: print_hello
+  end type sane_type
+end module sane_interface
+
+submodule (sane_inteface) sane_implementation
+  implicit none
+  contains
+    subroutine print_hello
+      print "(A)", "Hello, world!"
+    end subroutine print_hello
+end submodule sane_implementation
+
+program sane
+  use sane_interface
+  implicit none
+  type(sane_type) :: greeter
+  call greeter%print_hello
+end program sane
+```
+Note that is not necessary to add `implicit none` into the subroutine `print_hello` because it inherits the clause from its host, namely the submodule `sane_implementation`.
+
+It is also worth to mention that many compilers offer the possibility to enforce `implicit none` everywhere by means of dedicated options, e.g. GNU gfortran offers the option `-fimplicit-none`.
+
+#### Unusual implicit typing usage
+There are particular scenario where implicit typing could be admissible.
+
+##### Implicit templating
+Exploiting implicit typing and standard `include` statement could be used to *mimic* templating programming
+```fortran
+subroutine abc_sub
+  implicit type(abc) (v)
+  include "sub_base-inc.f90"
+end subroutine abc_sub
+```
+where `sub_base-inc.f90` contains just the usage of variable `var`.
+
+Go to [TOP](#top) or [Up](#explicit)
+
+### <a name="references"></a> References
 
 Sources of inspiration:
 
 [1] <a name="modern-fortran-style"></a> [Modern Fortran: Style and Usage](http://www.amazon.com/Modern-Fortran-Norman-S-Clerman/dp/052173052X), *Norman S. Clerman and Walter Spector*.
+
+Go to [TOP](#top)
+
+### <a name="copyrights"></a> Copyrights
+
+This document is released under a Creative Commons Attribution-ShareAlike 4.0 International [License](https://github.com/Fortran-FOSS-Programmers/Best_Practices/blob/master/LICENSE-CC-by-sa.md).
+
+All the code-snippets contained into this document are released under a Creative Commons CC0 1.0 Universal [License](https://github.com/Fortran-FOSS-Programmers/Best_Practices/blob/master/LICENSE-CC0.md).
+
+Go to [TOP](#top)
