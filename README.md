@@ -188,6 +188,8 @@ module shape_sphere ! underscores for module name
 end module shape_sphere
 ```
 
+**Please note:** This style doesn't work in case you have module and/or type names that only consist of a single word. `Car` and `car` are the same thing to Fortran compilers, so it will generate namespace conflicts.
+
 ###### exploit submodules (specific for module/derived type disambiguation)
 exploit the (new) `submodule` construct to separate the API definition of the derived type and its actual implementation and, consequently, to distinguish the module name from the derived type being defined, e.g.:
 ```fortran
