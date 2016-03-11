@@ -7,11 +7,56 @@
     + [naming convention](#naming) counts;
     + [explicit](#explicit) is better than *impl.*;
 
-[References](#references)
+---
 
-[Copyrights](#copyrights)
+[Guide](#guide) | [Motivations](#motivations) | [References](#references) | [Copyrights](#copyrights)
 
-# Motivations
+---
+
+# <a name="guide"></a> Guide to the document
+
+Before read this document, please understand the following conventions.
+
+## General rules
+
+General rules are emphasized by *blockquotes*, e.g.
+
+> be standards compliant as much as possible
+
+## Examples
+
+In order to clearly explain our motivations we often report examples, both *positive* and *negative*. The examples snippets are syntax-highlighted and *decorated*, e.g.
+
+##### :x:
+```fortran
+type foo
+  contains
+    procedure :: negate_foo
+    generic :: operator(.not_foo.) => negate_foo ! .not_foo. is not a valid name
+end type
+```
+##### :white_check_mark:
+```fortran
+type foo
+  contains
+    procedure :: negate_foo
+    generic :: operator(.notFoo.) => negate_foo ! .notFoo. is a valid name
+end type
+```
+
+## Compilers support
+
+Not all *best practices* are supported by all compilers, e.g. if a suggested practice relies on a modern Fortran standard it is likely that few compilers support it. When it is useful, the compilers support is emphasized by a check list like
+
+| Compiler       | Version | Support                   |
+|----------------|---------|---------------------------|
+| GNU gfortran   | 5.3+    |  :heavy_check_mark:       |
+| Intel Fortran  | 15.03   |  :heavy_exclamation_mark: |
+| IBM XL Fortran | 14.1    |  :question:               |
+
+---
+
+# <a name="motivations"></a> Motivations
 
 ## <a name="standardization"></a> standard compliance counts... but practicality counts more
 
@@ -59,6 +104,7 @@ The naming convention is a very personal choice. The following suggestions shoul
 > + the name of source files should reflect the name of the main entity they are defining;
 
 Note that there is at least one case where *underscores* style cannot be used, i.e. naming *defined operators*, e.g.
+##### :x:
 ```fortran
 type foo
   contains
@@ -67,6 +113,7 @@ type foo
 end type
 ```
 In such a case, consider to exploit `CamelCase` style, e.g.
+##### :white_check_mark:
 ```fortran
 type foo
   contains
@@ -88,6 +135,8 @@ The following are some interesting *suggestions* to improve readability. Some of
 
 + write Fortran keywords in all *UPPERCASE*: this guideline was often adopted (in the near past) to distinguish reserved Fortran keywords from user's defined names; presently, almost all widely used editors provide a fairly complete syntax highlighting support by means of which the Fortran keywords are immediately distinguished form others; as a consequence, before adopt this style, consider to exploit editors highlighting thus saving your *typing efforts* necessary to capitalized all Fortran keywords;
     + exception could be the naming of *global accessible* variables (that, indeed should be avoided if they are not parameters): all *UPPERCASE* names could help to distinguish global scope entities (e.g. module or program variables) from local ones (e.g. procedures variables)
+##### :white_check_mark:
+```fortran
 ```fortran
 module global_scope
 integer :: GLOBAL
@@ -114,6 +163,8 @@ Current (modern) Fortran standards (90 and later) allow *long* names (up to 63 c
 Let us consider the definition of the air *speed of sound*: naming it as `a`, as it is common in some fields, is not a good choice, it being unclear for who is not familiar with this implicit convention; even worst could be to name it as `sos` for the sake of conciseness: does this variable contain the value of the speed of sound or a help request? Prefer a more clear name like `speed_of_sound`, it being clear for all.
 
 Verbosity or names-lengthy could be effectively limited with other helper constructs when/where conciseness helps readability. Let us assume that our speed of sound variable is a member of a derived type representing a gas
+##### :white_check_mark:
+```fortran
 ```fortran
 type :: gas
   real :: gamma = 0.0
@@ -122,6 +173,8 @@ type :: gas
 endtype gas
 ```
 Local names shortening could be easily achieved exploiting the `associate` construct, e.g.
+##### :white_check_mark:
+```fortran
 ```fortran
 function density(low_pressure_gas)
   type(gas), intent(in) :: low_pressure_gas
@@ -137,6 +190,7 @@ end function density
 ```
 
 Consider exploiting *meaningful names* to their *extreme*. Let us assume we are developing a large library that must deal with numerous *objects*, and we need to perform the same set of *actions* on these data, i.e. we need to develop a set of procedures performing the *same conceptual* action, but on different objects. In order to improve the readability of this large library, it could be helpful to provide to such a procedures set with a *complete meaningful and descriptive* name, e.g.
+##### :white_check_mark:
 ```fortran
 subroutine compute_transpose_of_sparse_approximate_matrix(...)
 ...
@@ -146,9 +200,14 @@ subroutine compute_transpose_of_sparse_exact_matrix(...)
 ...
 ```
 
+| Compiler | Version | Support                   |
+|----------|---------|---------------------------|
+| all      | all     |  :heavy_check_mark:       |
+
 ##### <a name="entities-disambiguation"></a> Entities disambiguation
 It could happen that you would like to attribute the same name to different *entities* in the same *scope*. An emblematic example is the definition of a derived type. Typically, for important *classes*, a derived type is defined into its own module. Consequently, you have to select a name (with a meaning) for both the module and the derived type. You could be tempted to write something like
 
+##### :x:
 ```fortran
 module shape_sphere
   type, public :: shape_sphere ! not allowed
@@ -157,6 +216,7 @@ endmodule shape_sphere
 ```
 This is not allowed because two different *entities*, namely the module and the derived type, have the same name in the same scope. In such a situation, you should consider adopting a convention to disambiguate names. Note that a similar ambiguity happens when you would like to name a variable with the same of its type, e.g.:
 
+##### :x:
 ```fortran
 type(shape_sphere) :: shape_sphere ! not allowed
 ```
@@ -165,6 +225,7 @@ Among the others, the following are widely-used disambiguation techniques:
 
 ###### use *prefix* and or *suffix*
 + suffix modules with `_m` and derived type with `_t`:
+##### :white_check_mark:
 ```fortran
 module shape_sphere_m
   type, public :: shape_sphere_t
@@ -172,6 +233,7 @@ module shape_sphere_m
 end module shape_sphere_m
 ```
 + prefix *all* modules building up a library (or a package) with a common tag, e.g. `pkg_`:
+##### :white_check_mark:
 ```fortran
 module pkg_shape_sphere
   type, public :: shape_sphere
@@ -181,6 +243,7 @@ end module pkg_shape_sphere
 
 ###### use different styles concurrently
 Use mixed mode `CamelCase/under_score` style, one for entity:
+##### :white_check_mark:
 ```fortran
 module shape_sphere ! underscores for module name
   type, public :: ShapeSphere ! CamelCase for derive type
@@ -192,6 +255,7 @@ end module shape_sphere
 
 ###### exploit submodules (specific for module/derived type disambiguation)
 exploit the (new) `submodule` construct to separate the API definition of the derived type and its actual implementation and, consequently, to distinguish the module name from the derived type being defined, e.g.:
+##### :white_check_mark:
 ```fortran
 module speaker_interface
   type :: speaker
@@ -214,10 +278,17 @@ end submodule speaker_implementation
 ```
 Here `_interface` suffix is used to distinguish the API interface definition of the module from its actual implementation done into the submodule suffixed by `_implementation`, the derived type `speaker` being disambiguated at well.
 
+| Compiler       | Version | Support     |
+|----------------|---------|-------------|
+| GNU gfortran   | 5.3+    |  :question: |
+| Intel Fortran  | 15.03   |  :question: |
+| IBM XL Fortran | 14.1    |  :question: |
+
 ##### <a name="procedures-disambiguation"></a> Procedures disambiguation
 The disambiguation and readability improvement of procedures naming merit some specific considerations:
 
 > + insert an explicit reference to the class name into each type bound procedure name, e.g.
+##### :white_check_mark:
 ```fortran
 type :: object
   contains
@@ -228,6 +299,7 @@ end type object
 ```
 this allow you to easy move the object and its implementation into other modules preserving namespaces integrity.
 > + adopt mixed style `CamelCase/under_score` to identify procedures with respect other entities, e.g.
+##### :white_check_mark:
 ```fortran
 type :: gas
   real :: speed_of_sound ! underscores style for variables
@@ -237,6 +309,7 @@ end type gas
 ```
 > + procedures should have an *an action **verb*** into their name ...
 > + however, consider to distinguish `subroutine` from `function` exploiting the presence (or the absence) of the action verb, i.e. use **verb form** for subroutine and **noun form** for function, e.g.
+##### :white_check_mark:
 ```fortran
 ! verb form
 subroutine get_useful_thing
@@ -257,6 +330,7 @@ Implicit typing can *speed* the development of codes, but it is difficult to deb
 
 A sane explicit style is
 
+##### :white_check_mark:
 ```fortran
 module sane_interface
   implicit none
@@ -290,6 +364,7 @@ There are particular scenario where implicit typing could be admissible.
 
 ##### Implicit templating
 Exploiting implicit typing and standard `include` statement could be used to *mimic* templating programming
+##### :white_check_mark:
 ```fortran
 subroutine abc_sub
   implicit type(abc) (v)
