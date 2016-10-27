@@ -4,8 +4,10 @@
 
 + [standard compliance](#standardization) counts... but *practicality* counts more;
 + [beautiful](#beautiful) is better than *ugly*:
-    + [naming convention](#naming) counts;
-    + [explicit](#explicit) is better than *impl.*;
+  + [naming convention](#naming) counts;
+  + [explicit](#explicit) is better than *impl.*;
+  + [simple](#simple) is better than *CoMpleX*:
+    + [structured](#structured) is better than *unStRUcturED*;
 
 ---
 
@@ -390,11 +392,47 @@ where `sub_base-inc.f90` contains just the usage of variable `var`.
 
 Go to [TOP](#top) or [Up](#explicit)
 
+### <a name="simple"></a> Simple is better than *CoMpleX*
+
+*Simplicity* is a fundamental key to write readable and maintainable code. In general, a *task* can be completed by means of different approaches: depending on the particular application, different approaches led up to simple or complex codes. In this regards, different programming *idioms* should be used for different aims, e.g. Object Oriented Programming is tailored to improve code maintainability and reausability for complex (possible *generic*) tasks, but it could add unnecessary complexity for more simple applications.
+
+Concerning simplicity, some aspects should be considered:
++ [structured](#structured) is better than *unStRUcturED*;
+
+#### Structured is better than *unStRUcturED*
+
+Commonly, a code could be viewed as sequence of statements that *flow* from one statement to the next one, but to allow the program to behaves differently in response to different inputs, *jump* statements are often used, they making the flow generally non-linear. Such flows can be distingushed in **structured** and **unstrctured** (that in the worst case led to so called *spaghetti-code*):
+
++ structured flows are easy to read/improve/maintain because the jump conditions must strictly respect a *location constrain* allowing the flow to jump into only one prescribed location;
++ unstructured flows are more difficult to follow and thus more difficult to read/improve/maintain because the jump condionts are totally unrescricted allowing the flow to jump everywhere;
+
+While the former is less flexible but more readable the latter could drive to write very efficient code but very complex and unreadable. In fortran, many constructs allow for structured flow, among them the main are `return`, `exit`, `cycle` and the branching constructs like `select case` or `if elseif`. On the contrary, the most famous unstructured jump statement is `goto` that allows flow jump at any (labelled) positions (upward or downward).
+
+> it is recommended to avoid, as much as possible, `goto` statement:
++ in almost all cases goto can be replaced by means of structured-safe constructs **without** any performance penalty while greatly improving readability and maintainability;
++ but exceptions should be allowed for very corner cases that, anyhow, should be in the hands of experts.
+
+As a matter of fact, for very special cases, `goto` could be very helpful, see [[a]](#dijkstra-1968)[[b]](#rubin-1987). Commonly, such applications involves very low-level tasks that are more likely happening in C contest rather Fortran one, e.g. exception handling, finite state machine algorithms, resources cleaner/finalizer, ecc...
+
+> `goto` is not the evil *per se*, rather because it likely drives [programmers] to develop unstructured code that flows chaotically as the flight of a *butterfly*.
+
+##### Examples
+
+To be completed.
+
+##### References
+
+<a name="dijkstra-1968"></a>[[a]]() *Go To Statement Considered Harmful*, Edsger W. Dijkstra, ACM, Vol. 11, No. 3, March 1968, pp. 147-148.
+
+<a name="rubin-1987"></a>[[b]]() *GOTO Considered Harmful*, Frank Rubin, ACM, Vol. 30, No. 3, March 1987, pp. 195-196.
+
+Go to [TOP](#top) or [Simple](#simple)
+
 ### <a name="references"></a> References
 
 Sources of inspiration:
 
-[1] <a name="modern-fortran-style"></a> [Modern Fortran: Style and Usage](http://www.amazon.com/Modern-Fortran-Norman-S-Clerman/dp/052173052X), *Norman S. Clerman and Walter Spector*.
+ <a name="modern-fortran-style"></a>[[1]]() [Modern Fortran: Style and Usage](http://www.amazon.com/Modern-Fortran-Norman-S-Clerman/dp/052173052X), *Norman S. Clerman and Walter Spector*.
 
 Go to [TOP](#top)
 
