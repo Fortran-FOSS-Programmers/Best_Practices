@@ -399,7 +399,7 @@ Go to [TOP](#top) or [Up](#explicit)
 Concerning simplicity, some aspects should be considered:
 + [structured](#structured) is better than *unStRUcturED*;
 
-#### Structured is better than *unStRUcturED*
+#### <a name="structured"></a> Structured is better than *unStRUcturED*
 
 Commonly, a code could be viewed as sequence of statements that *flow* from one statement to the next one, but to allow the program to behaves differently in response to different inputs, *jump* statements are often used, they making the flow generally non-linear. Such flows can be distingushed in **structured** and **unstrctured** (that in the worst case led to so called *spaghetti-code*):
 
@@ -412,11 +412,49 @@ While the former is less flexible but more readable the latter could drive to wr
 + in almost all cases goto can be replaced by means of structured-safe constructs **without** any performance penalty while greatly improving readability and maintainability;
 + but exceptions should be allowed for very corner cases that, anyhow, should be in the hands of experts.
 
-As a matter of fact, for very special cases, `goto` could be very helpful, see [[a]](#dijkstra-1968)[[b]](#rubin-1987). Commonly, such applications involves very low-level tasks that are more likely happening in C contest rather Fortran one, e.g. exception handling, finite state machine algorithms, resources cleaner/finalizer, ecc...
+As a matter of fact, for very special cases, `goto` could be very helpful, see [[a]](#dijkstra-1968)[[b]](#rubin-1987). Commonly, such applications involves very low-level tasks that are more likely happening in C contest rather Fortran one, e.g. exceptions (errors) handling, resources cleaner/finalizer, ecc... The interested readers could read a recent study of Nagappan et. al. [[c]](#nagappan-2015) showing that `goto` is still used on many GitHub-hosted projects. Moreover, `goto` seems to be extensively used in the Linux kernel, e.g. see [[d]](#wilkens-2003).
 
 > `goto` is not the evil *per se*, rather because it likely drives [programmers] to develop unstructured code that flows chaotically as the flight of a *butterfly*.
 
 ##### Examples
+
+Fortran is a very high-level language, we *discourage* the usage of `goto`, but this is not a *rule of thumb*. The following examples show some cases where `goto` is commonly used and how to avoid it.
+
+###### Exception/error handling
+
+Sometimes, the *algorithm* must take into account the occurences of excepetions or errors and, for example, break a (series) of loop. In the old-good-days, such an exceptions handling was done by means of `goto`:
+
+:x:
+```fortran
+do a=1,n
+  do b=1,m
+    ! do some stuff ...
+    if (is_error_occurred) goto 10 ! break out of the outer loop
+    ! ...
+  end do
+end do
+10  continue
+```
+
+Altough, the above code is clear, for large loops it becomes soon *obscure*: the *jump* condition `goto 10` is not actually telling more than *jump on label 10*, but `label 10` can be everwhere in the current scope, even befor the start of the outer loop. The resulting flow is *unstructered* and could let to *spaghetti* code if not carefully handled. On the contrary, we suggest to exploit **named** do loops:
+
+:white_check_mark:
+```fortran
+a_loop : do a=1,n
+  b_loop: do b=1,m
+    !do some stuff ...
+    if (done) exit a_loop ! break out of the outer loop
+    !...
+  end do b_loop
+end do a_loop
+```
+The `exit` statement is more clear, it is jumping outside (at the end) of the outer (named) loop, that is a structured flow: exit can jump only farward.
+
+TODO: add `cycle` example.
+
+###### Resources cleaner/finalizer
+
+Often, the *algoritm* allocates resouces that need to be *cleaned/finalized* when the task is finished and, in general, resources are *case-dependent* thus different *kind* of cleaners are necessary.
 
 To be completed.
 
@@ -425,6 +463,10 @@ To be completed.
 <a name="dijkstra-1968"></a>[[a]]() *Go To Statement Considered Harmful*, Edsger W. Dijkstra, ACM, Vol. 11, No. 3, March 1968, pp. 147-148.
 
 <a name="rubin-1987"></a>[[b]]() *GOTO Considered Harmful*, Frank Rubin, ACM, Vol. 30, No. 3, March 1987, pp. 195-196.
+
+<a name="nagappan-2015"></a>[[c]](http://www.se.rit.edu/~mei/publications/pdfs/An-Empirical-Study-of-Goto-in-C-Code-from-GitHub-Repositories.pdf) *An Empirical Study of Goto in C Code from GitHub Repositories*, M. Nagappan, et. al, Proceedings of the 2015 10th Joint Meeting on Foundations of Software Engineering, Pages 404-414, 2015.
+
+<a name="wilkens-2003"></a>[[d]](http://koblents.com/Ches/Links/Month-Mar-2013/20-Using-Goto-in-Linux-Kernel-Code/) *USING GOTO IN LINUX KERNEL CODE*, R. Wilkens, *epistolary* discussion with Linus Torvalds, 2003.
 
 Go to [TOP](#top) or [Simple](#simple)
 
