@@ -150,7 +150,6 @@ The following are some interesting *suggestions* to improve readability. Some of
 
 :white_check_mark:
 ```fortran
-```fortran
 module global_scope
 integer :: GLOBAL
 contains
@@ -181,7 +180,6 @@ Verbosity or names-lengthy could be effectively limited with other helper constr
 
 :white_check_mark:
 ```fortran
-```fortran
 type :: gas
   real :: gamma = 0.0
   real :: pressure = 0.0
@@ -192,7 +190,6 @@ end type gas
 Local names shortening could be easily achieved exploiting the `associate` construct, e.g.
 
 :white_check_mark:
-```fortran
 ```fortran
 function density(low_pressure_gas)
   type(gas), intent(in) :: low_pressure_gas
@@ -559,7 +556,7 @@ TODO: Document finalization best practices
 
 <a name="wilkens-2003"></a>[[d]](http://koblents.com/Ches/Links/Month-Mar-2013/20-Using-Goto-in-Linux-Kernel-Code/) *USING GOTO IN LINUX KERNEL CODE*, R. Wilkens, *epistolary* discussion with Linus Torvalds, 2003.
 
-<a name="nagle-2012"></a>[[e]] (http://www.daniellnagle.com/coco.html) *Fortran Program coco*, D. Nagle, 2012
+<a name="nagle-2012"></a>[[e]](http://www.daniellnagle.com/coco.html) *Fortran Program coco*, D. Nagle, 2012.
 
 Go to [TOP](#top) or [Simple](#simple)
 
