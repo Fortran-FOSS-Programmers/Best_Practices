@@ -1,4 +1,4 @@
-# <a name="top"></a> best practices and styles guidelines of Fortran FOSS Programmers
+# <a name="top"></a> Best practices and styles guidelines of Fortran FOSS Programmers
 
 > an opinionated list of *best practices* to be a good Fortran FOSS Programmer
 
@@ -17,7 +17,7 @@
 
 # <a name="guide"></a> Guide to the document
 
-Before read this document, please understand the following conventions.
+Before reading this document, please understand the following conventions.
 
 ## General rules
 
@@ -75,17 +75,21 @@ However, follow this guideline with *counsciousness*, be ready to be *flexible*,
 
 Among the common reasons to break standards compliance, the following are worth to be mentioned
 
-+ exploit parallel architectures: Fortran is widely used in High Performance Computing (HPC) where parallel hardware is omnipresent; it is very common the necessity to adopt *third party solution* (generally a library) to exploit such a hardware; rather than a very *promising*, but uncommon solutions, prefer: [OpenMP](), [OpenACC](), *to be completed*;
++ exploit parallel architectures: Fortran is widely used in High Performance Computing (HPC) where parallel hardware is omnipresent; it is very common the necessity to adopt *third party solution* (generally a library) to exploit such a hardware; rather than a very *promising*, but uncommon solutions, prefer: [OpenMP](), [OpenACC](), ...
 + *consume third party library*: some problems thst are not strictly related to mathematical computations (e.g. OS-level operations or runtime errors handling) are often solved using mixed-languages, non standard libraries (typycaly C based, but Python is also commonn nowadays); in such a case consider exploiting `ISO_C_BINDING` to develop standards compliance codes as much as possible.
 
-Finally, be conscious that there are other (subtle) aspects that could make your code non standard: for example the usage of a *preprocessor* makes your code not strictly standard just because Fortran has not defined a standard preprocessor; Fortraners tipically use the C preprocessor that has different features, for example, with respect the Intel Fortran preprocessor `fpp`.
+TODO: Complete discussion of 'exploit parallel architectures' (first bullet point)
+
+Finally, be conscious that there are other (subtle) aspects that could make your code non-standard: for example, the use of *preprocessor* directives makes your code not strictly standard since there is no standard Fortran preprocessor. While many Fortraners use the `fpp` preprocessor which ships with Intel's Fortran compiler, others use the COCO preprocessor[[e]](#nagle-2012), and many use no preprocessor at all.
 
 ## <a name="beautiful"></a> Beautiful is better than *ugly*
-There is a common wrong feeling about computer codes: *only the results count, no matter the form* of your code is. This is wrong from many points of view, but mostly remember that
+There is a common misconception about computer codes: *only the results count, no matter the form* of your code. This is wrong from many points of view, but mostly remember that:
 
 > in addition to writing code for the computer, you are also writing code for humans, yourself included. The purpose of the calculations and the methods used to do so must be clear
 
 see [[1](#modern-fortran-style)]. This means that results count, but also *readability* is a value: a readable and clear (and possible concise) code can be easily debugged, improved and *maintained* (e.g. ported on new architecture). As a consequence, the time you spend on beautify your code is not wasted: it will reduce future works, it will allow easy collaboration with new developers, it will make easy to evolve the code itself.
+
+In the case of code used in high-reliability environments (i.e. nuclear safety), source code may be subject to audits and peer review for *verification* purposes (i.e. ensuring the code correctly implements its functional specifications). Code which is obscure is difficult to review and verify and may harbor faults which testing does not reveal.
 
 The followings are some guidelines to try to develop *beautiful* (in the sense of readable/clear) codes:
 
@@ -97,8 +101,9 @@ The naming convention is a very personal choice. The following suggestions shoul
 
 > + adopt your *opinionated* naming convention and use it **consistently**;
 > + prefer lowercase: Fortran is a case-insensitive language, thus you cannot rely on lower-UPPER case distinction for syntax checks; however, `CamelCase` style could help code readability, thus select your way:
->     + if you go with strict lowercase style, consider to exploit *underscores* (`lower_case`) to improve your names clearness (especially for multi-word names);
-> + names should be *descriptive*, names should have *meaning*: do not strive too much in *local shortening*, adopt names that are *auto-explicative*; in particular, singular character names should be admissible for **only** indexes/counters;
+>     + if you use a strict lowercase style, consider to exploit *underscores* (`lower_case`) to improve your names clearness (especially for multi-word names);
+>     + try to use underscores consistently. For example, if the variables `temp_wall` and `temp-gas` have been defined, the floor temperature should be named `temp_floor`, not `tempfloor` or `floor_temp`.
+> + names should be *descriptive*, names should have *meaning*: do not strive too much in *local shortening*, adopt names that are *auto-explicative*; in particular, singular character names should be admissible for **only** index/counter variables;
 >     + avoid *magic numbers*, use *parameters*, i.e. named constants;
 >     + logical variables should be named to reflect the state they are used to conveying, e.g.
 >         + prefer `lib_is_initialized` vs `lib_init`;
@@ -128,21 +133,22 @@ end type
 ```
 
 #### General considerations
-The following general (incomplete) considerations are **not** *rule of thumb*, but they provide interesting details on some common scenario.
+The following general considerations are **not** *rule of thumb*, but they provide interesting details on some common scenario.
 
 + [Names readability](#names-readability)
 + [Names meaning](#names-meaning)
 + [Entities disambiguation](#entities-disambiguation)
 + [Procedures disambiguation](#procedures-disambiguation)
 
+TODO: Add more considerations.
+
 ##### <a name="names-readability"></a> Names readability
 The following are some interesting *suggestions* to improve readability. Some of them could be considered *anachronistic*:
 
 + write Fortran keywords in all *UPPERCASE*: this guideline was often adopted (in the near past) to distinguish reserved Fortran keywords from user's defined names; presently, almost all widely used editors provide a fairly complete syntax highlighting support by means of which the Fortran keywords are immediately distinguished form others; as a consequence, before adopt this style, consider to exploit editors highlighting thus saving your *typing efforts* necessary to capitalized all Fortran keywords;
-    + exception could be the naming of *global accessible* variables (that, indeed should be avoided if they are not parameters): all *UPPERCASE* names could help to distinguish global scope entities (e.g. module or program variables) from local ones (e.g. procedures variables)
++ exception could be the naming of *global accessible* variables (that, indeed should be avoided if they are not parameters): all *UPPERCASE* names could help to distinguish global scope entities (e.g. module or program variables) from local ones (e.g. procedures variables)
 
 :white_check_mark:
-```fortran
 ```fortran
 module global_scope
 integer :: GLOBAL
@@ -157,32 +163,33 @@ contains
   end subroutine unsafe
 end module global_scope
 ```
-+ avoid naming variables with single-character `l`, i.e. lower case `L`: often the lower case name `l` can be confused with the number constant `1`, especially when some mono-spaced/sans-serif fonts are used, e.g. in the statement `do l=1, N` do you easily distinguish the loop counter from the loop starting value? Again, editors syntax highlighting helps to distinguish variables from numeric constants; note that similar considerations could be made also for the single-character name `O`, i.e. upper case `o` that could be confused with the number constant `0`;
++ avoid naming variables with single-character `l`, i.e. lower case `L`: often the lower case name `l` can be confused with the number constant `1`, especially when some mono-spaced/sans-serif fonts are used, e.g. in the statement `do l=1, N` do you easily distinguish the loop counter from the loop starting value? Again, syntax highlighting sometimes helps to distinguish variables from numeric constants; note that similar considerations could be made also for the single-character name `O`, i.e. upper case `o` that could be confused with the number constant `0`;
 
 ##### <a name="names-meaning"></a> Names meaning
 As a *rule of thumb* (yes, we aforementioned that these are not rule of thumb...) consider that
 
 > all names must have a meaning.
 
-Current (modern) Fortran standards (90 and later) allow *long* names (up to 63 characters). Consider exploiting all the characters you need, do not strive too much on *local shortening*.
+Current (modern) Fortran standards (F90 and later) allow *long* names (up to 63 characters). Consider exploiting all the characters you need, do not strive too much on *local shortening*.
 
-Let us consider the definition of the air *speed of sound*: naming it as `a`, as it is common in some fields, is not a good choice, it being unclear for who is not familiar with this implicit convention; even worst could be to name it as `sos` for the sake of conciseness: does this variable contain the value of the speed of sound or a help request? Prefer a more clear name like `speed_of_sound`, it being clear for all.
+Let us consider the definition of the air *speed of sound*: naming it as `a`, as it is common in some fields, is not a good choice, it being unclear for who is not familiar with this implicit convention; even worst could be to name it as `sos` for the sake of conciseness: does this variable contain the value of the speed of sound or a help request?  A name like `speed_of_sound` is preferable since it is clear and of reasonable length.
+
+If the speed of sound for multiple materials is needed, consider using an array with named constants representing the index for material, i.e. `speed_of_sound(AIR)`, `speed_of_sound(WATER)`, etc.
 
 Verbosity or names-lengthy could be effectively limited with other helper constructs when/where conciseness helps readability. Let us assume that our speed of sound variable is a member of a derived type representing a gas
 
 :white_check_mark:
 ```fortran
-```fortran
 type :: gas
   real :: gamma = 0.0
   real :: pressure = 0.0
   real :: speed_of_sound = 0.0
-endtype gas
+end type gas
 ```
+
 Local names shortening could be easily achieved exploiting the `associate` construct, e.g.
 
 :white_check_mark:
-```fortran
 ```fortran
 function density(low_pressure_gas)
   type(gas), intent(in) :: low_pressure_gas
@@ -196,6 +203,8 @@ function density(low_pressure_gas)
   return
 end function density
 ```
+
+NOTE: As of Fortran 2008, `gamma` is an intrinsic math function; a different variable name should be used to represent the isentropic expansion coefficient (ratio of heat capacities). This illustrates both the importance and (at times) difficulty of choosing good names for variables.
 
 Consider exploiting *meaningful names* to their *extreme*. Let us assume we are developing a large library that must deal with numerous *objects*, and we need to perform the same set of *actions* on these data, i.e. we need to develop a set of procedures performing the *same conceptual* action, but on different objects. In order to improve the readability of this large library, it could be helpful to provide to such a procedures set with a *complete meaningful and descriptive* name, e.g.
 
@@ -220,8 +229,8 @@ It could happen that you would like to attribute the same name to different *ent
 ```fortran
 module shape_sphere
   type, public :: shape_sphere ! not allowed
-  endtype shape_sphere
-endmodule shape_sphere
+  end type shape_sphere
+end module shape_sphere
 ```
 This is not allowed because two different *entities*, namely the module and the derived type, have the same name in the same scope. In such a situation, you should consider adopting a convention to disambiguate names. Note that a similar ambiguity happens when you would like to name a variable with the same of its type, e.g.:
 
@@ -239,7 +248,7 @@ Among the others, the following are widely-used disambiguation techniques:
 ```fortran
 module shape_sphere_m
   type, public :: shape_sphere_t
-  endtype shape_sphere_t
+  end type shape_sphere_t
 end module shape_sphere_m
 ```
 + prefix *all* modules building up a library (or a package) with a common tag, e.g. `pkg_`:
@@ -248,7 +257,7 @@ end module shape_sphere_m
 ```fortran
 module pkg_shape_sphere
   type, public :: shape_sphere
-  endtype shape_sphere
+  end type shape_sphere
 end module pkg_shape_sphere
 ```
 
@@ -259,7 +268,7 @@ Use mixed mode `CamelCase/under_score` style, one for entity:
 ```fortran
 module shape_sphere ! underscores for module name
   type, public :: ShapeSphere ! CamelCase for derive type
-  endtype ShapeSphere
+  end type ShapeSphere
 end module shape_sphere
 ```
 
@@ -376,7 +385,7 @@ Note that is not necessary to add `implicit none` into the subroutine `print_hel
 It is also worth to mention that many compilers offer the possibility to enforce `implicit none` everywhere by means of dedicated options, e.g. GNU gfortran offers the option `-fimplicit-none`.
 
 #### Unusual implicit typing usage
-There are particular scenario where implicit typing could be admissible.
+There are particular scenarios where implicit typing could be admissible.
 
 ##### Implicit templating
 Exploiting implicit typing and standard `include` statement could be used to *mimic* templating programming
@@ -394,19 +403,19 @@ Go to [TOP](#top) or [Up](#explicit)
 
 ### <a name="simple"></a> Simple is better than *CoMpleX*
 
-*Simplicity* is a fundamental key to write readable and maintainable code. In general, a *task* can be completed by means of different approaches: depending on the particular application, different approaches led up to simple or complex codes. In this regards, different programming *idioms* should be used for different aims, e.g. Object Oriented Programming is tailored to improve code maintainability and reausability for complex (possible *generic*) tasks, but it could add unnecessary complexity for more simple applications.
+*Simplicity* is a fundamental key to writing readable and maintainable code. In general, a *task* can be completed by means of different approaches: depending on the particular application, different approaches result in simple or complex codes. In this regard, different programming *idioms* should be used for different aims, e.g. Object Oriented Programming is tailored to improve code maintainability and reausability for complex (possible *generic*) tasks, but it could add unnecessary complexity for simple applications.
 
 Concerning simplicity, some aspects should be considered:
 + [structured](#structured) is better than *unStRUcturED*;
 
 #### <a name="structured"></a> Structured is better than *unStRUcturED*
 
-Commonly, a code could be viewed as sequence of statements that *flow* from one statement to the next one, but to allow the program to behaves differently in response to different inputs, *jump* statements are often used, they making the flow generally non-linear. Such flows can be distingushed in **structured** and **unstrctured** (that in the worst case led to so called *spaghetti-code*):
+Commonly, a code could be viewed as sequence of statements that *flow* from one statement to the next one, but to allow the program to behave differently in response to different inputs, *jump* statements are often used, making the flow of control generally non-linear. Such flows can be distingushed in **structured** and **unstructured** (in the worst case leading to so called *spaghetti-code*):
 
-+ structured flows are easy to read/improve/maintain because the jump conditions must strictly respect a *location constrain* allowing the flow to jump into only one prescribed location;
-+ unstructured flows are more difficult to follow and thus more difficult to read/improve/maintain because the jump condionts are totally unrescricted allowing the flow to jump everywhere;
++ structured flows are easy to read/improve/maintain because the jump conditions must strictly respect a *location constraint* allowing the flow to jump into only one prescribed location;
++ unstructured flows are more difficult to follow and thus more difficult to read/improve/maintain because the jump conditions are totally unrestricted allowing the flow to jump anywhere;
 
-While the former is less flexible but more readable the latter could drive to write very efficient code but very complex and unreadable. In fortran, many constructs allow for structured flow, among them the main are `return`, `exit`, `cycle` and the branching constructs like `select case` or `if elseif`. On the contrary, the most famous unstructured jump statement is `goto` that allows flow jump at any (labelled) positions (upward or downward).
+While the former is less flexible but more readable the latter may allow very efficient code which is very complex and unreadable. In Fortran, many constructs allow for structured flow, primarily `call/return`, `do/end do`, `exit`, `cycle` and the branching constructs like `select case` or `if elseif`. On the contrary, the most famous unstructured jump statement is `goto` (*unconditional*, *computed*, or *assigned*, or the related *arithmetic IF* statement) that allows flow jump to any labelled position (upward or downward) within a program unit.
 
 > it is recommended to avoid, as much as possible, `goto` statement:
 + in almost all cases goto can be replaced by means of structured-safe constructs **without** any performance penalty while greatly improving readability and maintainability;
@@ -422,7 +431,7 @@ Fortran is a very high-level language, we *discourage* the usage of `goto`, but 
 
 ###### Exception/error handling
 
-Sometimes, the *algorithm* must take into account the occurences of excepetions or errors and, for example, break a (series) of loop. In the old-good-days, such an exceptions handling was done by means of `goto`:
+Sometimes, the *algorithm* must take into account the occurences of exceptions or errors and, for example, break a (series) of loop. In the old-good-days, such an exceptions handling was done by means of `goto`:
 
 :x:
 ```fortran
@@ -436,7 +445,7 @@ end do
 10  continue
 ```
 
-Altough, the above code is clear, for large loops it becomes soon *obscure*: the *jump* condition `goto 10` is not actually telling more than *jump on label 10*, but `label 10` can be everwhere in the current scope, even befor the start of the outer loop. The resulting flow is *unstructered* and could let to *spaghetti* code if not carefully handled. On the contrary, we suggest to exploit **named** do loops:
+Although the above code is clear, for large loops it soon becomes *obscure*: the *jump* condition `goto 10` is not actually telling more than *jump on label 10*, but `label 10` can be anywhere in the current scope, even before the start of the outer loop. The resulting flow is *unstructered* and could lead to *spaghetti* code if not carefully handled. On the contrary, we suggest using **named** do loops:
 
 :white_check_mark:
 ```fortran
@@ -448,15 +457,94 @@ a_loop : do a=1,n
   end do b_loop
 end do a_loop
 ```
-The `exit` statement is more clear, it is jumping outside (at the end) of the outer (named) loop, that is a structured flow: exit can jump only farward.
+The `exit` statement is more clear, it is jumping outside (to the end) of the outer (named) loop, that is a structured flow: exit can jump only foreward.
 
-TODO: add `cycle` example.
+Similarly, there are conditions when one wants to skip to the end of the loop body and advance to the next iteration. The classic method of handling this case is also with a `goto`:
+
+:x:
+```fortran
+do a=1,n
+  ! do some stuff ...
+  if (condition_detected) goto 10 ! skip remainder of loop body
+  ! do a lot of other things
+  x(a) = 0.0
+10  continue
+end do
+```
+
+The code is clear in this toy example but again, consider code with a complex loop body. Or worse, code structure such as the following:
+
+:x:
+```fortran
+! This is occasionally seen in FORTRAN 77 code
+do 10 a=1,n
+  ! do some stuff ...
+  if (condition_detected) goto 10 ! skip remainder of loop body
+  ! do a lot of other things
+  x(a) = 0.0
+10 continue ! Please don't do this
+```
+
+or
+
+:x:
+```fortran
+! This is seen more often in FORTRAN IV and FORTRAN 66 code
+do 10 a=1,n
+  ! do some stuff ...
+  if (condition_detected) goto 10 ! skip remainder of loop body
+  ! do a lot of other things
+10 x(a) = 0.0 ! Please, please, PLEASE don't do this
+```
+
+The intent of the `goto` and behavior of the code can be badly obscured. Using both the `cycle` statement and named loops, the code can be greatly clearified:
+
+:white_check_mark:
+```fortran
+a_loop: do a=1,n
+  ! do some stuff ...
+  if (condition_detected) cycle a_loop ! skip remainder of loop body
+  ! do a lot of other things
+  x(a) = 0.0
+end do a_loop
+```
+
+Here it is clear that the loop `a_loop` is *short-circuited*; the intent is to skip the remainder of the loop body and advance to the next iteration of the loop. If `cycle` occurs on the last iteration of the loop, the loop terminates.
+
+###### Alternate conditional branches
+
+The *arithmetic IF* statement is an obsolete control structure which was used to implement alternate branches before the `if/elseif/else` construct was added to the Fortran standard.
+
+:x:
+```fortran
+! This is seen often in FORTRAN IV and FORTRAN 66 code
+if (j) 10, 20, 30
+10 ! Do things if j < 0
+  goto 40
+20 ! Do things if j == 0
+  goto 40
+30 ! Do things if j > 0
+40 continue
+```
+
+The logic of this example is clear however when branching logic becomes complex and nested and the labels references in the arithmetic `IF` statement are scattered throughout the code, the code quickly becomes unreadable and unmaintainable.
+
+:white_check_mark:
+```fortran
+if (j > 0) then
+  ! Do things if j < 0
+elseif (j == 0) then
+  ! Do things if j == 0
+else
+  ! Do things if j > 0
+end if
+```
 
 ###### Resources cleaner/finalizer
 
 Often, the *algoritm* allocates resouces that need to be *cleaned/finalized* when the task is finished and, in general, resources are *case-dependent* thus different *kind* of cleaners are necessary.
 
-To be completed.
+TODO: Document finalization best practices
 
 ##### References
 
@@ -467,6 +555,8 @@ To be completed.
 <a name="nagappan-2015"></a>[[c]](http://www.se.rit.edu/~mei/publications/pdfs/An-Empirical-Study-of-Goto-in-C-Code-from-GitHub-Repositories.pdf) *An Empirical Study of Goto in C Code from GitHub Repositories*, M. Nagappan, et. al, Proceedings of the 2015 10th Joint Meeting on Foundations of Software Engineering, Pages 404-414, 2015.
 
 <a name="wilkens-2003"></a>[[d]](http://koblents.com/Ches/Links/Month-Mar-2013/20-Using-Goto-in-Linux-Kernel-Code/) *USING GOTO IN LINUX KERNEL CODE*, R. Wilkens, *epistolary* discussion with Linus Torvalds, 2003.
+
+<a name="nagle-2012"></a>[[e]](http://www.daniellnagle.com/coco.html) *Fortran Program coco*, D. Nagle, 2012.
 
 Go to [TOP](#top) or [Simple](#simple)
 
